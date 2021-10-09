@@ -14,16 +14,19 @@ import com.arthur.entities.ManaPotion;
 import com.arthur.entities.Weapon;
 import com.arthur.graficos.Spritesheet;
 import com.arthur.main.Game;
+import com.arthur.world.light.Light;
 
 public class World {
 	
-	private static Tile[] tiles;
+	public static Tile[] tiles;
 	public static int WIDTH,HEIGHT;
 	public static final int Tile_Size =16 ;
+	public Light light;
 	
 	public World(String path) {
 		try {
 			BufferedImage map = ImageIO.read(getClass().getResource(path));
+			light = new Light();
 			int[] pixels = new int[map.getWidth() * map.getHeight()];
 			WIDTH = map.getWidth();
 			HEIGHT = map.getHeight();
@@ -32,50 +35,60 @@ public class World {
 			for(int xx = 0; xx < map.getWidth(); xx++) {
 				for(int yy = 0; yy < map.getHeight();yy++) {
 					int pixelAtual = pixels[xx +(yy * map.getWidth())];
-					tiles[xx + (yy * WIDTH)] = new FloorTile(xx * 16, yy * 16,FloorTile.sprite );
-					switch(pixelAtual) {
-						case 0xFFFFFFFF:
-							//parede
-							tiles[xx + (yy * WIDTH)] = new Wall_Tile(xx * 16, yy * 16,Wall_Tile.sprite );
-							break;
-						case 0xFF4800FF:
-						     //player
-							Game.player.setX(xx * 16);
-							Game.player.setY(yy * 16);
-							break;
-						case 0xFF4CFF00:
-							//Life,.POTION
-							LifePotion lifePotion = new LifePotion(xx * 16,yy *16,16,16,Entity.LIFEPOTION_EN);
-							Game.entities.add(lifePotion);
-							break;
-						
-						case 0xFF808080:
-							//Sword
-							Weapon sword = new Weapon(xx * 16,yy *16,16,16,Entity.SWORD_EN);
-							Game.entities.add(sword);;
-							break;
-						case 0xFF00FFFF:
-							//Mana Potion
-							ManaPotion manaPotion = new ManaPotion(xx * 16,yy *16,16,16,Entity.MANAPOTION_EN);
-							Game.entities.add(manaPotion);
-							
-						case 0xFFFF0000:
-							//GOBLIN
-							Enemy goblin = new Enemy(xx * 16,yy *16,16,16,Entity.GOBLIN_EN);
-							 Game.entities.add(goblin);
-							break;
-						case 0xFF3F3F3F:
-							//escada
-							Stairs escada = new Stairs(xx * 16, yy * 16,16, 16, Stairs.sprite );
-							Game.entities.add(escada);
-							break;
-						default:	
-							break;
+					if(Game.map == "forest_ruins") {
+						tiles[xx + (yy * WIDTH)] = new FloorTile(xx * 16, yy * 16,FloorTile.sprite );
+					}
+					else if(Game.map == "dungeon") {
+						tiles[xx + (yy * WIDTH)] = new DungeonFloorTile(xx * 16, yy * 16,DungeonFloorTile.sprite );
+					}
+					if(pixelAtual == 0xFFFFFFFF ) {
+						//parede
+						if(Game.map == "forest_ruins") {
+							tiles[xx + (yy * WIDTH)] = new ForestRuinsWallTile(xx * 16, yy * 16,ForestRuinsWallTile.sprite );
+						}
+						else if(Game.map == "dungeon") {
+							tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16,DungeonWallTile.sprite );
+						}
+					}
+					else if(pixelAtual == 0xFF4800FF ) {
+						//player
+						Game.player.setX(xx * 16);
+						Game.player.setY(yy * 16);
+					}
+					else if(pixelAtual == 0xFF4CFF00) {
+						LifePotion lifePotion = new LifePotion(xx * 16,yy *16,16,16,Entity.LIFEPOTION_EN);
+						Game.entities.add(lifePotion);
+					}
+					else if(pixelAtual == 0xFF00FFFF) {
+						//Mana Potion
+						ManaPotion manaPotion = new ManaPotion(xx * 16,yy *16,16,16,ManaPotion.sprite);
+						Game.entities.add(manaPotion);
+					}
+					else if(pixelAtual == 0xFF808080) {
+						//Sword
+						Weapon sword = new Weapon(xx * 16,yy *16,16,16,Entity.SWORD_EN);
+						Game.entities.add(sword);
+					}
+					else if(pixelAtual == 0xFF3F3F3F ) {
+						//escada
+						Stairs escada = new Stairs(xx * 16, yy * 16,16, 16, Stairs.sprite );
+						Game.entities.add(escada);
+					}
+					else if(pixelAtual == 0xFFFF0000) {
+						//GOBLIN
+						Enemy goblin = new Enemy(xx * 16,yy *16,16,16,Entity.GOBLIN_EN);
+						Game.entities.add(goblin);
+					}
+					else if(pixelAtual == 0xFF383F38) {
+						//parede da dungeon
+						tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16,DungeonWallTile.sprite );
 					}
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
+			
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -124,5 +137,8 @@ public class World {
 				tile.render(g);
 			}
 		}
+		
+		//light.applyLight();
+
 	}
 }

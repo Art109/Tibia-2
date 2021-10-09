@@ -2,10 +2,7 @@ package com.arthur.entities;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
-import com.arthur.graficos.Spritesheet;
-import com.arthur.graficos.UI;
 import com.arthur.main.Game;
 import com.arthur.world.Camera;
 import com.arthur.world.Stairs;
@@ -28,7 +25,7 @@ public class Player extends Entity {
 	
 	private BufferedImage[] rightAttackPlayer;
 	private BufferedImage[] leftAttackPlayer;
-	private BufferedImage[] upAttackPlayer;
+	//private BufferedImage[] upAttackPlayer;
 	private BufferedImage[] downAttackPlayer;
 	
 	private boolean weapon = false;
@@ -51,6 +48,7 @@ public class Player extends Entity {
 		leftPlayer = new BufferedImage[3];
 		upPlayer = new BufferedImage[1];
 		downPlayer = new BufferedImage[3];
+		depth = 1;
 		
 		
 		
@@ -147,8 +145,8 @@ public class Player extends Entity {
 			int py = 0;
 			int width = 0;
 			int height = 0;		
-			int AttackFrame = 0;
-			int MaxAttackFrame = 5;
+			/*int AttackFrame = 0;
+			int MaxAttackFrame = 5;*/
 			if(dir == right_dir) {
 				dx = 1;
 				py = 10;

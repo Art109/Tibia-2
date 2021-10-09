@@ -3,16 +3,19 @@ package com.arthur.entities;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import com.arthur.main.Game;
 import com.arthur.main.Sound;
+import com.arthur.world.AStar;
 import com.arthur.world.Camera;
+import com.arthur.world.Vector2i;
 import com.arthur.world.World;
 
 public class Enemy extends Entity{
 	
 	private double speed = 1.6;
-	private int maskx= 8,masky = 8, maskw = 10 , maskh = 10;
+	
 	
 	public int right_dir = 0, left_dir = 1, up_dir = 2 , down_dir =3;
 	public int dir = down_dir;
@@ -55,6 +58,7 @@ public class Enemy extends Entity{
 		for(int i = 0 ; i < 3 ; i++) {
 			downEnemy[i] = Game.spritesheet.getSprite(114, 0 + (i *16),16,16);
 		}
+		depth = 0;
 		
 		damageRightEnemy = Game.spritesheet.getSprite(128,48, 16, 16);
 		damageLeftEnemy = Game.spritesheet.getSprite(144,48, 16, 16);
@@ -63,34 +67,59 @@ public class Enemy extends Entity{
 	
 	public void tick() {
 		moved = false;
-		if(this.isColidingWithPlayer() == false) {
-			if(Game.rand.nextInt(100) < 25) {
-				//IA
-				moved = true;
-				if(x < Game.player.getX() && World.isFree((int)(x + speed),this.getY()) && !isColiding((int)(x + speed),this.getY())) {
-					dir = right_dir;
-					x+=speed;
-				}else if (x > Game.player.getX() && World.isFree((int)(x - speed),this.getY()) && !isColiding((int)(x - speed),this.getY())) {
-					dir = left_dir;
-					x-=speed;
-				}
-				if(y < Game.player.getY() && World.isFree(this.getX(),(int)(y + speed)) && !isColiding(this.getX(),(int)(y + speed))) {
-					dir = up_dir;
-					y += speed;
-				}else if(y > Game.player.getY() && World.isFree(this.getX(),(int)(y - speed)) && !isColiding(this.getX(),(int)(y - speed))) {
-					dir = down_dir;
-					y -= speed;
-				}
-			}
-	
-		}else {
-			// em contato com o player
-			if(Game.rand.nextInt(100) < 5) {
-				Sound.hitEffect.play();
-				Game.player.life--;
-				Game.player.isDamaged = true;
-			}
+		
+		if(calcularDistancia(this.getX(),Game.player.getX(),this.getY(),Game.player.getY()) < 100) {
 			
+			if(this.isColidingWithPlayer() == false) {
+				if(new Random().nextInt(100) < 60) {
+					//IA
+					followPath(path);
+					moved = true;
+					if(x < Game.player.getX()) {
+						dir = right_dir;
+
+					}else if (x > Game.player.getX()) {
+						dir = left_dir;
+					}
+					if(y < Game.player.getY()) {
+						dir = up_dir;
+					}else if(y > Game.player.getY()) {
+						dir = down_dir;
+					}
+				}
+				if(new Random().nextInt(100) < 5) {
+					if(path == null || path.size() == 0) {
+						Vector2i start = new Vector2i((int)(x/16),(int)(y/16));
+						Vector2i end = new Vector2i((int)(Game.player.x/16),(int)(Game.player.y/16));
+						path = AStar.findPath(Game.world,start,end);
+					}
+				}
+					/*if(x < Game.player.getX() && World.isFree((int)(x + speed),this.getY()) && !isColiding((int)(x + speed),this.getY())) {
+						dir = right_dir;
+						//x+=speed;
+					}else if (x > Game.player.getX() && World.isFree((int)(x - speed),this.getY()) && !isColiding((int)(x - speed),this.getY())) {
+						dir = left_dir;
+						//x-=speed;
+					}
+					if(y < Game.player.getY() && World.isFree(this.getX(),(int)(y + speed)) && !isColiding(this.getX(),(int)(y + speed))) {
+						dir = up_dir;
+						//y += speed;
+					}else if(y > Game.player.getY() && World.isFree(this.getX(),(int)(y - speed)) && !isColiding(this.getX(),(int)(y - speed))) {
+						dir = down_dir;
+						//y -= speed;
+					}*/
+				
+	
+			}
+			else {
+				// em contato com o player
+				if(Game.rand.nextInt(100) < 5) {
+					Sound.hitEffect.play();
+					Game.player.life--;
+					Game.player.isDamaged = true;
+				}
+			
+			}
 		}
 		ColidingWithAttack();
 		
@@ -142,26 +171,13 @@ public class Enemy extends Entity{
 	}
 	public boolean isColidingWithPlayer() {
 		
-		Rectangle enemy_current = new Rectangle(this.getX() + maskx,this.getY() + masky,maskw,maskh);
+		Rectangle enemy_current = new Rectangle(this.getX() + maskx,this.getY() + masky,mwidth,mheight);
 		Rectangle player = new Rectangle(Game.player.getX(),Game.player.getY(),16,16);
 		
 		return enemy_current.intersects(player);
 	}
 	
-	public boolean isColiding(int xnext,int ynext) {
-		Rectangle enemy_current = new Rectangle(xnext + maskx,ynext + masky,maskw,maskh);	
-		for(int i = 0 ; i < Game.entities.size(); i++) {
-			Entity e = Game.entities.get(i);
-			if(e == this) {
-				continue;
-			}
-			Rectangle targetEnemy = new Rectangle(e.getX() + maskx,e.getY()+ masky,maskw,maskh);
-			if(enemy_current.intersects(targetEnemy)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	
 	
 	public void render(Graphics g) {
 		if(!isDamaged) {

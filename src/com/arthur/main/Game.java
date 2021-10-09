@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
@@ -26,6 +27,7 @@ import com.arthur.entities.Player;
 import com.arthur.graficos.Spritesheet;
 import com.arthur.graficos.UI;
 import com.arthur.world.World;
+import com.arthur.world.light.Light;
 
 public class Game extends Canvas implements Runnable,KeyListener{
 	
@@ -49,7 +51,7 @@ public class Game extends Canvas implements Runnable,KeyListener{
 	
 	public static Random rand;
 	
-	private String map ;
+	public static String map ;
 	
 	public UI ui;
 	
@@ -60,6 +62,10 @@ public class Game extends Canvas implements Runnable,KeyListener{
 	private boolean restartGame = false;
 	
 	public Menu menu;
+	
+	public static int[] pixels;
+	
+	public Light light;
 	
 	public boolean saveGame = false;
 	
@@ -75,13 +81,14 @@ public class Game extends Canvas implements Runnable,KeyListener{
 		// Inicializando objetos
 		ui = new UI();
 		image = new BufferedImage(WIDTH,HEIGHT,BufferedImage.TYPE_INT_RGB);
+		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		entities = new ArrayList<Entity>();
 		enemies = new ArrayList<Enemy>();
 		spritesheet = new Spritesheet("/spritesheet.png");
 		player = new Player(0,0,16,16,spritesheet.getSprite(33,0, 16, 16));
 		//entities.add(player);
-		world = new World("/forest_ruins.png");
 		map = "forest_ruins";
+		world = new World("/" + map + ".png");
 		
 		try {
 			newFont = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(30f);
@@ -134,7 +141,10 @@ public class Game extends Canvas implements Runnable,KeyListener{
 				System.out.println("Jogo Salvo");
 				
 			}
-			Sound.musicBackground.loop();
+			if(map == "forest_ruins")
+				Sound.musicBackground.loop();
+			else if(map == "dungeon")
+				Sound.musicBackground.stop();
 			restartGame = false;
 			Entity p = player;
 			p.tick();
@@ -183,6 +193,7 @@ public class Game extends Canvas implements Runnable,KeyListener{
 			Entity e = entities.get(i);
 			e.render(g);
 		}
+		world.light.applyLight();
 
 		ui.render(g);
 		
