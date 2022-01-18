@@ -3,8 +3,10 @@ package com.arthur.entities;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 import java.util.List;
 
+import com.arthur.graficos.Spritesheet;
 import com.arthur.main.Game;
 import com.arthur.world.Camera;
 import com.arthur.world.Node;
@@ -12,36 +14,47 @@ import com.arthur.world.Vector2i;
 
 public class Entity {
 	
-	public static BufferedImage LIFEPOTION_EN = Game.spritesheet.getSprite(0, 32, 16, 16);
-	public static BufferedImage SWORD_EN = Game.spritesheet.getSprite(0, 16, 16, 16);
-
-	public static BufferedImage GOBLIN_EN = Game.spritesheet.getSprite(97, 0, 16, 16);
 	
 
 	protected double x;
 	protected double y;
 	protected int width;
 	protected int height;
+	protected int speed;
 	public int depth;
 	
 	public int maskx= 8,masky = 8, mwidth = 10 , mheight = 10;
 	protected List<Node> path;
 	
-	private BufferedImage sprite;
+	protected BufferedImage sprite;
 	
 	
-	public Entity(int x , int y, int width , int height, BufferedImage sprite) {
+	public Entity(int x , int y, int width , int height) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.sprite = sprite;
 		
 		this.maskx = 0;
 		this.masky = 0;
 		this.mwidth = width;
 		this.mheight = height;
 	}
+	
+	public static Comparator<Entity> nodeSorter = new Comparator<Entity>() {
+		
+		@Override
+		
+		public int compare(Entity n0,Entity n1) {
+			if(n1.depth < n0.depth) {
+				return - 1;
+			}
+			if(n1.depth > n0.depth) {
+				return + 1;
+			}
+			return 0;
+		}
+	};
 	
 	public void setMask(int maskx,int masky,int mwidth, int mheight) {
 		this.maskx = maskx;
@@ -79,17 +92,17 @@ public class Entity {
 			if(path.size() > 0) {
 				Vector2i target = path.get(path.size() - 1).tile;
 				if(x < target.x * 16 ) {
-					x++;
+					x += speed;
 				}
 				else if(x > target.x * 16) {
-					x--;
+					x -= speed;
 				}
 				
 				if(y < target.y * 16) {
-					y++;
+					y += speed;
 				}
 				else if(y > target.y * 16) {
-					y--;
+					y -= speed;
 				}
 				
 				if(x == target.x * 16 && y == target.y * 16 ) {

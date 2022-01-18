@@ -12,6 +12,7 @@ import com.arthur.entities.Entity;
 import com.arthur.entities.LifePotion;
 import com.arthur.entities.ManaPotion;
 import com.arthur.entities.Weapon;
+import com.arthur.entities.espadaSimples;
 import com.arthur.graficos.Spritesheet;
 import com.arthur.main.Game;
 import com.arthur.world.light.Light;
@@ -22,6 +23,7 @@ public class World {
 	public static int WIDTH,HEIGHT;
 	public static final int Tile_Size =16 ;
 	public Light light;
+	public static Spritesheet tiles_spritesheet;
 	
 	public World(String path) {
 		try {
@@ -30,24 +32,25 @@ public class World {
 			int[] pixels = new int[map.getWidth() * map.getHeight()];
 			WIDTH = map.getWidth();
 			HEIGHT = map.getHeight();
+			tiles_spritesheet = new Spritesheet("/tiles_spritesheet.png");
 			tiles = new Tile[map.getHeight() * map.getWidth()];
 			map.getRGB(0,0,map.getWidth(),map.getHeight(),pixels,0,map.getWidth());
 			for(int xx = 0; xx < map.getWidth(); xx++) {
 				for(int yy = 0; yy < map.getHeight();yy++) {
 					int pixelAtual = pixels[xx +(yy * map.getWidth())];
 					if(Game.map == "forest_ruins") {
-						tiles[xx + (yy * WIDTH)] = new FloorTile(xx * 16, yy * 16,FloorTile.sprite );
+						tiles[xx + (yy * WIDTH)] = new FloorTile(xx * 16, yy * 16);
 					}
 					else if(Game.map == "dungeon") {
-						tiles[xx + (yy * WIDTH)] = new DungeonFloorTile(xx * 16, yy * 16,DungeonFloorTile.sprite );
+						tiles[xx + (yy * WIDTH)] = new DungeonFloorTile(xx * 16, yy * 16);
 					}
 					if(pixelAtual == 0xFFFFFFFF ) {
 						//parede
 						if(Game.map == "forest_ruins") {
-							tiles[xx + (yy * WIDTH)] = new ForestRuinsWallTile(xx * 16, yy * 16,ForestRuinsWallTile.sprite );
+							tiles[xx + (yy * WIDTH)] = new ForestRuinsWallTile(xx * 16, yy * 16);
 						}
 						else if(Game.map == "dungeon") {
-							tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16,DungeonWallTile.sprite );
+							tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16);
 						}
 					}
 					else if(pixelAtual == 0xFF4800FF ) {
@@ -56,32 +59,31 @@ public class World {
 						Game.player.setY(yy * 16);
 					}
 					else if(pixelAtual == 0xFF4CFF00) {
-						LifePotion lifePotion = new LifePotion(xx * 16,yy *16,16,16,Entity.LIFEPOTION_EN);
+						LifePotion lifePotion = new LifePotion(xx * 16,yy *16,16,16);
 						Game.entities.add(lifePotion);
 					}
 					else if(pixelAtual == 0xFF00FFFF) {
 						//Mana Potion
-						ManaPotion manaPotion = new ManaPotion(xx * 16,yy *16,16,16,ManaPotion.sprite);
+						ManaPotion manaPotion = new ManaPotion(xx * 16,yy *16,16,16);
 						Game.entities.add(manaPotion);
 					}
 					else if(pixelAtual == 0xFF808080) {
 						//Sword
-						Weapon sword = new Weapon(xx * 16,yy *16,16,16,Entity.SWORD_EN);
+						espadaSimples sword = new espadaSimples(xx * 16,yy *16,16,16);
 						Game.entities.add(sword);
 					}
 					else if(pixelAtual == 0xFF3F3F3F ) {
 						//escada
-						Stairs escada = new Stairs(xx * 16, yy * 16,16, 16, Stairs.sprite );
-						Game.entities.add(escada);
+						tiles[xx + (yy * WIDTH)] = new Stairs(xx * 16, yy * 16);
 					}
 					else if(pixelAtual == 0xFFFF0000) {
 						//GOBLIN
-						Enemy goblin = new Enemy(xx * 16,yy *16,16,16,Entity.GOBLIN_EN);
+						Enemy goblin = new Enemy(xx * 16,yy *16,16,16);
 						Game.entities.add(goblin);
 					}
 					else if(pixelAtual == 0xFF383F38) {
 						//parede da dungeon
-						tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16,DungeonWallTile.sprite );
+						tiles[xx + (yy * WIDTH)] = new DungeonWallTile(xx * 16, yy * 16);
 					}
 				}
 			}
@@ -111,12 +113,30 @@ public class World {
 				tiles[x4 + (y4 * World.WIDTH)] instanceof Wall_Tile);
 	}
 	
+	public static boolean isStair(int xnext,int ynext) {
+		int x1 = xnext / Tile_Size;
+		int y1= ynext/ Tile_Size;
+		
+		int x2 = (xnext + Tile_Size - 1) / Tile_Size;
+		int y2= ynext/ Tile_Size;
+		
+		int x3 = xnext/ Tile_Size;
+		int y3= (ynext + Tile_Size - 1) / Tile_Size;
+		
+		int x4 = (xnext + Tile_Size - 1) / Tile_Size;
+		int y4= (ynext + Tile_Size - 1)/ Tile_Size;
+		
+		return (tiles[x1 + (y1 * World.WIDTH)] instanceof Stairs ||
+				tiles[x2 + (y2 * World.WIDTH)] instanceof Stairs ||
+				tiles[x3 + (y3 * World.WIDTH)] instanceof Stairs ||
+				tiles[x4 + (y4 * World.WIDTH)] instanceof Stairs);
+	}
+	
 	public static void restartGame(String map) {
 		Game.entities.clear();
 		Game.enemies.clear();
 		Game.entities = new ArrayList<Entity>();
 		Game.enemies = new ArrayList<Enemy>();
-		Game.spritesheet = new Spritesheet("/spritesheet.png");
 		Game.world = new World("/" + map +".png");
 		return;
 	}

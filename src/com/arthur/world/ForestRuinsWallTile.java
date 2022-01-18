@@ -1,15 +1,13 @@
 package com.arthur.world;
 
-import java.awt.image.BufferedImage;
-
-import com.arthur.main.Game;
 
 public class ForestRuinsWallTile extends Wall_Tile {
 	
-	public ForestRuinsWallTile(int x, int y, BufferedImage sprite) {
-		super(x, y, sprite);
+	public ForestRuinsWallTile(int x, int y) {
+		super(x, y);
+		sprite = World.tiles_spritesheet.getSprite(0, 16, 16, 16);
 		
 	}
 
-	public static BufferedImage sprite = Game.spritesheet.getSprite(16, 0, 16, 16);
+
 }

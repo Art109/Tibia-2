@@ -3,12 +3,15 @@ package com.arthur.entities;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import com.arthur.graficos.Spritesheet;
 import com.arthur.main.Game;
 import com.arthur.world.Camera;
 import com.arthur.world.Stairs;
 import com.arthur.world.World;
 
 public class Player extends Entity {
+	
+	
 	
 	public boolean right,up,left,down;
 	public double speed = 0.7 ;
@@ -41,8 +44,12 @@ public class Player extends Entity {
 	
 	public static boolean downstairs = false;
 	
-	public Player(int x, int y, int width, int height, BufferedImage sprite) {
-		super(x, y, width, height, sprite);
+	private static Spritesheet spritesheet;
+	
+	public Player(int x, int y, int width, int height) {
+		super(x, y, width, height);
+		spritesheet = new Spritesheet("/player_spritesheet.png");
+		sprite = spritesheet.getSprite(0, 0, 16, 16);
 		
 		rightPlayer = new BufferedImage[3];
 		leftPlayer = new BufferedImage[3];
@@ -55,18 +62,18 @@ public class Player extends Entity {
 		playerdamage = new BufferedImage[4];
 		
 		for(int i = 0 ; i < 4 ; i++) {
-			playerdamage[i] = Game.spritesheet.getSprite(33 + (16 * i), 48 ,16, 16); 
+			playerdamage[i] = spritesheet.getSprite(0 + (16 * i), 48 ,16, 16); 
 		}
 		for(int i = 0; i < 3; i++) {
-			rightPlayer[i] = Game.spritesheet.getSprite(65, 0 + (16 *i), 16, 16);
+			rightPlayer[i] = spritesheet.getSprite(32, 0 + (16 *i), 16, 16);
 		}
 		for(int i = 0; i < 3; i++) {
-			leftPlayer[i] = Game.spritesheet.getSprite(81, 0 + (16 *i), 16, 16);
+			leftPlayer[i] = spritesheet.getSprite(48, 0 + (16 *i), 16, 16);
 		}
 		
-		upPlayer[0] = Game.spritesheet.getSprite(49, 0, 16, 16);
+		upPlayer[0] = spritesheet.getSprite(16, 0, 16, 16);
 		for(int i = 0 ; i < 3 ; i++) {
-			downPlayer[i] = Game.spritesheet.getSprite(33, 0 + (i * 16),16, 16);
+			downPlayer[i] = spritesheet.getSprite(0, 0 + (i * 16),16, 16);
 		}
 		
 		
@@ -76,13 +83,13 @@ public class Player extends Entity {
 		
 		
 		for(int i = 0 ; i < 5 ; i++) {
-			downAttackPlayer[i] = Game.spritesheet.getSprite(97, 64 + (i * 16),16, 16);
+			downAttackPlayer[i] = spritesheet.getSprite(64, 0 + (i * 16),16, 16);
 		}
 		for(int i = 0 ; i < 5 ; i++) {
-			rightAttackPlayer[i] = Game.spritesheet.getSprite(113, 64 + (i * 16),16, 16);
+			rightAttackPlayer[i] = spritesheet.getSprite(80, 0 + (i * 16),32, 16);
 		}
 		for(int i = 0 ; i < 5 ; i++) {
-			leftAttackPlayer[i] = Game.spritesheet.getSprite(129, 64 + (i * 16),15, 16);
+			leftAttackPlayer[i] = spritesheet.getSprite(114, 0 + (i * 16),32, 16);
 		}
 		
 	}
@@ -90,22 +97,43 @@ public class Player extends Entity {
 	public void tick() {
 		moved = false;
 		if(right && World.isFree((int)(x + speed),this.getY())) {
-			moved = true;
-			dir = right_dir;
-			x+=speed;
+			if(World.isStair((int)(x + speed),this.getY())) {
+				downstairs = true;
+			}
+			else {
+				moved = true;
+				dir = right_dir;
+				x+=speed;
+			}
+			
 		}else if(left && World.isFree((int)(x - speed),this.getY())) {
-			moved = true;
-			dir = left_dir;
-			x-=speed;
+			if(World.isStair((int)(x + speed),this.getY())) {
+				downstairs = true;
+			}
+			else {
+				moved = true;
+				dir = left_dir;
+				x-=speed;
+			}
 		}
 		if(up && World.isFree(this.getX(),(int)(y - speed))) {
-			moved = true;
-			dir = up_dir;
-			y-=speed;
+			if(World.isStair((int)(x + speed),this.getY())) {
+				downstairs = true;
+			}
+			else {
+				moved = true;
+				dir = up_dir;
+				y-=speed;
+			}	
 		}else if(down && World.isFree(this.getX(),(int)(y + speed))) {
-			moved = true;
-			dir = down_dir;
-			y+=speed;
+			if(World.isStair((int)(x + speed),this.getY())) {
+				downstairs = true;
+			}
+			else {
+				moved = true;
+				dir = down_dir;
+				y+=speed;
+			}	
 		}
 		
 		if(moved) {
@@ -121,12 +149,7 @@ public class Player extends Entity {
 		
 		checkLifePotion();
 		checkManaPotion();
-		if(downstairs == false) {
-			checkStairs();
-		}
-		else {
-			downstairs = false;
-		}	
+
 		
 		if(isDamaged) {
 			this.DamageFrames++;
@@ -219,19 +242,18 @@ public class Player extends Entity {
 	
 	private void WeaponEquiped() {
 		
-		
 		for(int i = 0 ; i < 4 ; i++) {
-			playerdamage[i] = Game.spritesheet.getSprite(33 +(16 * i), 112 ,16, 16); 
+			playerdamage[i] = spritesheet.getSprite(0 + (16 * i), 112 ,16, 16); 
 		}
 		for(int i = 0; i < 3; i++) {
-			rightPlayer[i] = Game.spritesheet.getSprite(65, 64 + (16 *i), 16, 16);
+			rightPlayer[i] = spritesheet.getSprite(32, 64 + (16 *i), 16, 16);
 		}
 		for(int i = 0; i < 3; i++) {
-			leftPlayer[i] = Game.spritesheet.getSprite(81, 64 + (16 *i), 16, 16);
+			leftPlayer[i] = spritesheet.getSprite(48, 64 + (16 *i), 16, 16);
 		}			
-		upPlayer[0] = Game.spritesheet.getSprite(49, 64, 16, 16);
+		upPlayer[0] = spritesheet.getSprite(16, 64, 16, 16);
 		for(int i = 0 ; i < 3 ; i++) {
-			downPlayer[i] = Game.spritesheet.getSprite(33, 64 + (i * 16),16, 16);
+			downPlayer[i] = spritesheet.getSprite(0, 64 + (i * 16),16, 16);
 		}
 	}
 	
@@ -247,24 +269,6 @@ public class Player extends Entity {
 		}
 	}
 	
-	public void checkStairs() {
-		for(int i = 0; i < Game.entities.size(); i++) {
-			Entity e = Game.entities.get(i);
-			if(e instanceof Stairs) {
-				if(Entity.isColiding(this, e)) {
-					if(downstairs == false) {
-						downstairs = true;
-					}else {
-						downstairs = false;
-					}
-					
-					
-					
-					return;
-				}
-			}
-		}
-	}
 	public void  checkManaPotion() {
 		for(int i = 0; i < Game.entities.size(); i++) {
 			Entity e = Game.entities.get(i);
@@ -330,6 +334,9 @@ public class Player extends Entity {
 			else if(dir == down_dir) {
 				g.drawImage(downPlayer[index], this.getX()- Camera.x, this.getY() - Camera.y,null);
 				}
+			else {
+				g.drawImage(sprite,this.getX() - Camera.x,this.getY() - Camera.y, null);
+			}
 		}else {
 			if(dir == right_dir) {
 				g.drawImage(playerdamage[2], this.getX()- Camera.x, this.getY() - Camera.y,null);

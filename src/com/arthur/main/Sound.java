@@ -52,7 +52,9 @@ public class Sound {
 		}
 	}
 	
-	public static Clips musicBackground = load("/background.wav",1);
+	public static Clips menuMusicBackground = load("/Soliloquy.wav",1);
+	public static Clips forestMusicBackground = load("/The-Secret-Within-The-Silent-Woods.wav",1);
+	public static Clips cryptMusicBackground = load("/radakan-old-crypt.wav",1);
 	public static Clips hitEffect = load("/Hurt.wav",1);
 	
 	private static Clips load(String name,int count){

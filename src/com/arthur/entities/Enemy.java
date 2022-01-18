@@ -5,16 +5,16 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+import com.arthur.graficos.Spritesheet;
 import com.arthur.main.Game;
 import com.arthur.main.Sound;
 import com.arthur.world.AStar;
 import com.arthur.world.Camera;
 import com.arthur.world.Vector2i;
-import com.arthur.world.World;
+
 
 public class Enemy extends Entity{
-	
-	private double speed = 1.6;
+
 	
 	
 	public int right_dir = 0, left_dir = 1, up_dir = 2 , down_dir =3;
@@ -36,33 +36,40 @@ public class Enemy extends Entity{
 	private int life = 50;
 	private int DamageFrames = 0;
 	
+	private static Spritesheet spritesheet;
+	
+	
+	
 
 	
-	public Enemy(int x, int y, int width, int height, BufferedImage sprite) {
-		super(x, y, width, height, sprite);
+	public Enemy(int x, int y, int width, int height) {
+		super(x, y, width, height);
 		
+		spritesheet = new Spritesheet("/goblin_spritesheet.png");
+		sprite = spritesheet.getSprite(0, 0, 16, 16);
+		speed = (int)1.6;
 		rightEnemy = new BufferedImage[2] ;
 		leftEnemy = new BufferedImage[2];
 		upEnemy = new BufferedImage[3];
 		downEnemy = new BufferedImage[3];
 		
 		for(int i = 0 ; i < 2 ; i++) {
-			rightEnemy[i] = Game.spritesheet.getSprite(129, 0 + (i *16),16,16);
+			rightEnemy[i] = spritesheet.getSprite(32, 0 + (i *16),16,16);
 		}
 		for(int i = 0 ; i < 2 ; i++) {
-			leftEnemy[i] = Game.spritesheet.getSprite(144, 0 + (i *16),16,16);
+			leftEnemy[i] = spritesheet.getSprite(48, 0 + (i *16),16,16);
 		}
 		for(int i = 0 ; i < 3 ; i++) {
-			upEnemy[i] = Game.spritesheet.getSprite(97, 0 + (i *16),16,16);
+			upEnemy[i] = spritesheet.getSprite(16, 0 + (i *16),16,16);
 		}
 		for(int i = 0 ; i < 3 ; i++) {
-			downEnemy[i] = Game.spritesheet.getSprite(114, 0 + (i *16),16,16);
+			downEnemy[i] = spritesheet.getSprite(0, 0 + (i *16),16,16);
 		}
 		depth = 0;
 		
-		damageRightEnemy = Game.spritesheet.getSprite(128,48, 16, 16);
-		damageLeftEnemy = Game.spritesheet.getSprite(144,48, 16, 16);
-		damageEnemy = Game.spritesheet.getSprite(97,48, 16, 16);
+		damageRightEnemy = spritesheet.getSprite(32,48, 16, 16);
+		damageLeftEnemy = spritesheet.getSprite(48,48, 16, 16);
+		damageEnemy = spritesheet.getSprite(0,48, 16, 16);
 	}
 	
 	public void tick() {

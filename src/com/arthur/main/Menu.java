@@ -3,6 +3,8 @@ package com.arthur.main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,6 +13,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.arthur.world.DungeonFloorTile;
+import com.arthur.world.FloorTile;
+import com.arthur.world.Wall_Tile;
 import com.arthur.world.World;
 
 public class Menu {
@@ -22,9 +27,11 @@ public class Menu {
 	
 	public boolean up,down;
 
-	public static boolean enter,pause;
+	public static boolean enter,pause = false;
 	
 	public static boolean saveExists = false, saveGame = false;
+	
+	
 	
 	public void tick() {
 		if(up) {
@@ -153,6 +160,7 @@ public class Menu {
 		catch(IOException e) {}
 	}
 	
+	
 	public void render(Graphics g) {
 		g.setColor(Color.black);
 		g.fillRect(0, 0,Game.WIDTH*Game.SCALE,Game.HEIGHT*Game.SCALE);
@@ -183,5 +191,8 @@ public class Menu {
 			g.setColor(Color.green);
 			g.drawString("Sair",(Game.WIDTH * Game.SCALE)/2 - 60 , (Game.HEIGHT * Game.SCALE)/2 + 80);
 		}
+		
+		Game.minimap.renderMinimap(g);
+		
 	}
 }
